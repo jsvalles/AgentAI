@@ -62,11 +62,11 @@ Claro, te creo un diagrama visual para que veas el flujo completo.
 
 \`\`\`mermaid
 flowchart TD
-    A[Inicio<br/>del proceso]
-    B[Paso 1<br/>Descripción]
-    C{¿Condición<br/>cumplida?}
-    D[Acción SI<br/>resultado]
-    E[Acción NO<br/>alternativa]
+    A[Inicio del proceso]
+    B[Paso 1 Descripción]
+    C{¿Condición cumplida?}
+    D[Acción SI resultado]
+    E[Acción NO alternativa]
     F[Fin]
     
     A --> B
@@ -94,9 +94,10 @@ flowchart TD
 **¿Te quedó claro el flujo?** Si quieres que profundice en algún paso específico, dímelo.
 
 **REGLAS MERMAID:**
-- Máximo 3-4 palabras por nodo
-- Usa <br/> para dos líneas si es necesario
-- 8-12 nodos mínimo para procesos complejos`;
+- Máximo 4-5 palabras por nodo (EN UNA SOLA LÍNEA, NO usar <br/> ni saltos de línea)
+- Si el texto es largo, dividir en múltiples nodos conectados
+- 8-12 nodos mínimo para procesos complejos
+- NUNCA usar <br/>, <br>, saltos de línea dentro de corchetes [ ]`;
       break;
       
     case 'procedure':
