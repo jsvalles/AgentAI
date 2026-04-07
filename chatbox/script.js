@@ -490,44 +490,12 @@ function appendMessage(kind, text, useTypewriter = 'auto'){
 
     wireDiagramActionButtons(el);
     
-    // Después de mostrar todo, renderizar Mermaid si existe
-    setTimeout(() => {
-      if(text.includes('mermaid')) {
-        if(typeof mermaid !== 'undefined'){
-          mermaid.init(undefined, el.querySelectorAll('.mermaid'));
-        }
-      }
-    }, delay + 100);
+    // Los diagramas ya se muestran como imágenes de mermaid.ink, no necesitan renderizado
     
     return; // Salir temprano porque typewriter maneja el resto
   }
   
-  // Renderizar diagramas Mermaid si existen
-  if(text.includes('mermaid')) {
-    setTimeout(() => {
-      if(window.mermaid) {
-        const mermaidNodes = el.querySelectorAll('.mermaid');
-        if (mermaidNodes.length > 0) {
-          try {
-            // Mermaid 10+ usa .run(), versiones anteriores usan .init()
-            if (typeof mermaid.run === 'function') {
-              mermaid.run({ nodes: Array.from(mermaidNodes), suppressErrors: false });
-            } else if (typeof mermaid.init === 'function') {
-              mermaid.init(undefined, mermaidNodes);
-            } else {
-              console.warn('Mermaid API no disponible');
-            }
-          } catch (err) {
-            console.error('Error renderizando Mermaid:', err);
-            // Si falla el render, mostrar el código como texto
-            mermaidNodes.forEach((node, i) => {
-              const code = node.textContent || node.innerText;
-              node.innerHTML = `<pre style="text-align:left;background:#fff;padding:12px;border-radius:4px;overflow:auto;font-size:11px;color:#666;">⚠️ Error de sintaxis Mermaid:\n\n${code}</pre>`;
-            });
-          }
-        }
-      }
-    }, 50);
+  // Los diagramas se generan como imágenes, no necesitan renderizado client-side
   }
   
   // Guardar en historial de conversación para contexto de IA
@@ -673,14 +641,34 @@ function processMermaidDiagrams(text) {
         <small>💡 Verifica sintaxis básica Mermaid (ej: flowchart TD, A[Inicio] --> B[Fin])</small>
       </div>`;
     } else {
-      // Diagrama válido, renderizar
+      // Generar imagen usando Mermaid.ink API
       const escapedCode = escapeHtmlAttribute(diagramCode);
+      
+      // Codificar código Mermaid en base64 para la URL
+      let base64Code;
+      try {
+        base64Code = btoa(unescape(encodeURIComponent(diagramCode)));
+      } catch(e) {
+        console.error('Error codificando Mermaid a base64:', e);
+        base64Code = btoa(diagramCode);
+      }
+      
+      // URL de la imagen generada por Mermaid.ink
+      const imageUrl = `https://mermaid.ink/img/${base64Code}`;
+      const svgUrl = `https://mermaid.ink/svg/${base64Code}`;
+      
       diagramHtml = `<div class="diagram-card" style="border:1px solid #d7dee8;border-radius:10px;background:#f8fafc;margin:12px 0;overflow:hidden;">
-        <div class="diagram-actions" style="display:flex;gap:8px;justify-content:flex-end;padding:8px 10px;background:#eef2f7;border-bottom:1px solid #d7dee8;">
-          <button type="button" class="diagram-copy-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Copiar Mermaid</button>
-          <button type="button" class="diagram-whimsical-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #0f766e;background:#0f766e;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Abrir en Whimsical</button>
+        <div class="diagram-actions" style="display:flex;gap:8px;justify-content:space-between;align-items:center;padding:8px 10px;background:#eef2f7;border-bottom:1px solid #d7dee8;">
+          <span style="font-size:11px;color:#64748b;">📊 Diagrama de flujo</span>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="diagram-copy-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Copiar código</button>
+            <a href="${svgUrl}" target="_blank" style="border:1px solid #059669;background:#059669;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;text-decoration:none;display:inline-block;">Descargar SVG</a>
+            <button type="button" class="diagram-whimsical-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #0f766e;background:#0f766e;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Editar en Whimsical</button>
+          </div>
         </div>
-        <div class="mermaid" data-mermaid-source="${escapedCode}" style="display:flex;justify-content:center;background:#f5f5f5;border-radius:0;padding:16px;overflow-x:auto;">${diagramCode}</div>
+        <div style="display:flex;justify-content:center;background:#fff;padding:20px;overflow-x:auto;">
+          <img src="${imageUrl}" alt="Diagrama Mermaid" style="max-width:100%;height:auto;border-radius:4px;" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22100%22%3E%3Ctext x=%2220%22 y=%2250%22 font-family=%22Arial%22 font-size=%2214%22%3E⚠️ Error cargando diagrama%3C/text%3E%3C/svg%3E';" />
+        </div>
       </div>`;
     }
     
