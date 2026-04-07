@@ -783,6 +783,10 @@ function normalizeMermaidCode(rawCode) {
     .replace(/\u00A0/g, ' ')
     .trim();
 
+  // Limpiar etiquetas HTML que pueden estar dentro de nodos (ej: A[Inicio<br/>texto])
+  code = code.replace(/<br\s*\/?>/gi, ' ');
+  code = code.replace(/<[^>]+>/g, '');
+  
   // Normalizar flechas: ---> o ----> a -->
   code = code.replace(/---+>/g, '-->');
 
