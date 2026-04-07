@@ -1358,18 +1358,10 @@ function detectSpecificVeeRule(query) {
     /reglas.*vee.*(naturgy|proyecto|implementadas|configuradas)/i
   ];
   
-  // Si pide lista de reglas, SÍ usar PDFs técnicos
+  // Si pide lista de reglas, SÍ usar PDFs técnicos - siempre AMBOS para ver lista completa
   if (ruleListPatterns.some(pattern => pattern.test(query))) {
-    console.log('📋 Pregunta sobre LISTA DE REGLAS detectada - Usar PDFs técnicos');
-    // Detectar si pide validación o estimación
-    if (/validaci[oó]n/i.test(queryLower)) {
-      return 'VALIDACIÓN';
-    } else if (/estimaci[oó]n/i.test(queryLower)) {
-      return 'ESTIMACIÓN';
-    } else {
-      // Si no especifica, buscar en ambos
-      return 'AMBOS';
-    }
+    console.log('📋 Pregunta sobre LISTA DE REGLAS detectada - Usar PDFs técnicos (AMBOS)');
+    return 'AMBOS'; // Siempre buscar en ambos PDFs para lista completa de reglas
   }
   
   // Palabras clave que indican preguntas GENERALES (no deben usar PDFs técnicos)
