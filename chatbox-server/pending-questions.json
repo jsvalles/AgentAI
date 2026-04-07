@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1769525515497,
+    "question": "como puedo desinstalar un medidor de un punto de servicio",
+    "sistema": "SERVICE",
+    "timestamp": "2026-01-27T14:51:55.497Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769525707441,
+    "question": "como puedo desinstalar un medidor de un punto de servicio",
+    "sistema": "SERVICE",
+    "timestamp": "2026-01-27T14:55:07.441Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769525855083,
+    "question": "como puedo desinstalar un medidor de un punto de servicio",
+    "sistema": "SERVICE",
+    "timestamp": "2026-01-27T14:57:35.083Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769719140273,
+    "question": "cuantos casos tienen la palabra facturacion",
+    "sistema": "General",
+    "timestamp": "2026-01-29T20:39:00.273Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769719163879,
+    "question": "cuantos casos tienen la palabra facturaciòn",
+    "sistema": "General",
+    "timestamp": "2026-01-29T20:39:23.879Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769720139170,
+    "question": "cuantos casos tienen la palabra facturacion",
+    "sistema": "General",
+    "timestamp": "2026-01-29T20:55:39.170Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1769725291399,
+    "question": "Gestión de deuda",
+    "sistema": "General",
+    "timestamp": "2026-01-29T22:21:31.399Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1770844036038,
+    "question": "confluence",
+    "sistema": "General",
+    "timestamp": "2026-02-11T21:07:16.038Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1771883324944,
+    "question": "si",
+    "sistema": "General",
+    "timestamp": "2026-02-23T21:48:44.944Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772141994618,
+    "question": "que es NIU",
+    "sistema": "General",
+    "timestamp": "2026-02-26T21:39:54.618Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772142489849,
+    "question": "que es niu",
+    "sistema": "General",
+    "timestamp": "2026-02-26T21:48:09.849Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772142822312,
+    "question": "que es NIU",
+    "sistema": "General",
+    "timestamp": "2026-02-26T21:53:42.312Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772143220433,
+    "question": "que es niu",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:00:20.433Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772143535340,
+    "question": "que es niu",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:05:35.340Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772143658944,
+    "question": "que es cups",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:07:38.944Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772143871691,
+    "question": "que es cups",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:11:11.691Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772144097837,
+    "question": "que es cups",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:14:57.837Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772144144858,
+    "question": "que es niu",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:15:44.858Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772144344239,
+    "question": "que es niu",
+    "sistema": "General",
+    "timestamp": "2026-02-26T22:19:04.239Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772208429064,
+    "question": "QUE ES UN CIL",
+    "sistema": "General",
+    "timestamp": "2026-02-27T16:07:09.064Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772214699612,
+    "question": "que es un dato inicial de medicion",
+    "sistema": "General",
+    "timestamp": "2026-02-27T17:51:39.612Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772214996667,
+    "question": "que es un dato inicial de medicion",
+    "sistema": "General",
+    "timestamp": "2026-02-27T17:56:36.667Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772215054272,
+    "question": "cual es la estructura de una imd",
+    "sistema": "General",
+    "timestamp": "2026-02-27T17:57:34.272Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772215108591,
+    "question": "cual es la estructura de un dato inicial de medicion",
+    "sistema": "General",
+    "timestamp": "2026-02-27T17:58:28.591Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772484608853,
+    "question": "tengo un error de castigo de cartera",
+    "sistema": "null",
+    "timestamp": "2026-03-02T20:50:08.853Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772490278536,
+    "question": "muestrame un ejemplo",
+    "sistema": "General",
+    "timestamp": "2026-03-02T22:24:38.536Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772490709863,
+    "question": "muestrame un ejemplo",
+    "sistema": "General",
+    "timestamp": "2026-03-02T22:31:49.863Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772491114331,
+    "question": "muestrame un ejemplo",
+    "sistema": "General",
+    "timestamp": "2026-03-02T22:38:34.331Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1772491873134,
+    "question": "muestrame un ejemplo",
+    "sistema": "General",
+    "timestamp": "2026-03-02T22:51:13.134Z",
+    "status": "pendiente"
+  },
+  {
+    "id": 1775572292881,
+    "question": "PORQUE GENERA EL SIGUIENTE MENSAJE \"EL CAMPO DE SOLICITUD DE ENTRADA DISPOSITIVO TIENE UN VALOR INVALDO. lA CLAVE FORANEA REFERENCIA D1-DVC ID DE DISPOSITIVO 01 POR TABLA DISPOSITIVO NO EXISTE\"",
+    "sistema": "General",
+    "timestamp": "2026-04-07T14:31:32.881Z",
+    "status": "pendiente"
+  }
+]

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI-Assisted Support Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Mermaid para diagramas -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Marked.js para Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <header class="chat-header">
+      <span>AI-Assisted Support Agent</span>
+      <div style="display:flex;align-items:center;gap:15px;">
+        <!-- TRADUCCIÓN DESACTIVADA TEMPORALMENTE (API key no tiene acceso a modelos de Claude)
+        <button id="translateToggle" style="background:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.3s;">
+          🌐 ES
+        </button>
+        -->
+        <img src="logo.png" alt="Red Clay Logo" class="header-logo">
+      </div>
+    </header>
+    <main id="messages" class="chat-messages" aria-live="polite"></main>
+    <div id="optionsContainer" class="options-container" style="display:none;"></div>
+    <form id="inputForm" class="chat-input" action="javascript:;">
+      <input id="messageInput" type="text" placeholder="Escribe un mensaje..." autocomplete="off" />
+      <button id="sendBtn" type="submit">Enviar</button>
+    </form>
+  </div>
+  <script src="learning-client.js?v=20260306"></script>
+  <script src="auth-client.js?v=20260326"></script>
+  <script src="script.js?v=20260306"></script>
+</body>
+</html>

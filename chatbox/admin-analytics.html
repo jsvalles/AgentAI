@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Agente IA</title>
+  <link rel="icon" href="data:,">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      color: #333;
+      font-size: 32px;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card .icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-card .label {
+      color: #666;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .stat-card .value {
+      color: #333;
+      font-size: 36px;
+      font-weight: 700;
+    }
+    
+    .chart-container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    .chart-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .bar-label {
+      min-width: 150px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .bar-bg {
+      flex: 1;
+      height: 30px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .activity-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .activity-table th {
+      background: #f8fafc;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .activity-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    .activity-table tr:hover {
+      background: #f8fafc;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .badge-info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .timestamp {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: white;
+      font-size: 18px;
+    }
+    
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>📊 Analytics del Agente IA</h1>
+        <p style="color: #666; margin-top: 8px;">Estadísticas de uso y actividad</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="refreshStats()">🔄 Actualizar</button>
+        <button class="btn btn-primary" onclick="exportData()">📥 Exportar Datos</button>
+      </div>
+    </div>
+    
+    <div id="loading" class="loading">
+      Cargando estadísticas...
+    </div>
+    
+    <div id="error" style="display: none;"></div>
+    
+    <div id="content" style="display: none;">
+      <!-- Estadísticas principales -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="icon">💬</div>
+          <div class="label">Total Interacciones</div>
+          <div class="value" id="total-interactions">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="icon">👥</div>
+          <div class="label">Usuarios Únicos</div>
+          <div class="value" id="unique-users">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="icon">🎯</div>
+          <div class="label">Sesiones Activas</div>
+          <div class="value" id="unique-sessions">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="icon">😊</div>
+          <div class="label">Tasa Satisfacción</div>
+          <div class="value" id="satisfaction-rate">0%</div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <div class="icon">🔑</div>
+          <div class="label" style="color: rgba(255,255,255,0.9);">Tasa Identificación</div>
+          <div class="value" id="identification-rate">0%</div>
+          <small style="color: rgba(255,255,255,0.8); font-size: 11px; margin-top: 8px; display: block;" id="identification-subtitle">0 identificados / 0 anónimos</small>
+        </div>
+      </div>
+      
+      <!-- Usuarios identificados más activos -->
+      <div class="chart-container" id="top-users-container" style="display: none;">
+        <h2>🏆 Top Usuarios Identificados</h2>
+        <div id="top-users-chart" class="bar-chart"></div>
+      </div>
+      
+      <!-- Gráfico de actividad por día -->
+      <div class="chart-container">
+        <h2>📈 Actividad Últimos 7 Días</h2>
+        <div id="activity-chart" class="bar-chart"></div>
+      </div>
+      
+      <!-- Tipos de consulta -->
+      <div class="chart-container">
+        <h2>📊 Tipos de Consulta</h2>
+        <div id="query-types-chart" class="bar-chart"></div>
+      </div>
+      
+      <!-- Top queries -->
+      <div class="chart-container">
+        <h2>🔍 Consultas Más Frecuentes</h2>
+        <div id="top-queries" class="bar-chart"></div>
+      </div>
+      
+      <!-- Actividad reciente -->
+      <div class="chart-container">
+        <h2>📋 Actividad Reciente</h2>
+        <table class="activity-table" id="recent-activity">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Usuario</th>
+              <th>Consulta</th>
+              <th>Tipo</th>
+              <th>Resultados</th>
+              <th>Satisfacción</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Monitoreo de accesos -->
+      <div class="chart-container">
+        <h2>🔐 Monitoreo de Accesos</h2>
+        <table class="activity-table" id="auth-access-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Evento</th>
+              <th>Usuario</th>
+              <th>Estado</th>
+              <th>Ingreso</th>
+              <th>Salida</th>
+              <th>Tiempo de uso</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    async function loadStats() {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('content').style.display = 'none';
+        
+        const response = await fetch('/api/analytics/stats');
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error('Error cargando estadísticas');
+        }
+
+        const totalInteractions = Number(data.totalInteractions || 0);
+        const uniqueUsers = Number(data.uniqueUsers || 0);
+        const uniqueSessions = Number(data.uniqueSessions || 0);
+        const satisfactionRate = Number(data.satisfactionRate || 0);
+        const identificationRate = Number(data.identificationRate || 0);
+        const identifiedInteractions = Number(data.identifiedInteractions || 0);
+        const anonymousInteractions = Number(data.anonymousInteractions || 0);
+        const topIdentifiedUsers = Array.isArray(data.topIdentifiedUsers) ? data.topIdentifiedUsers : [];
+        const last7Days = data.last7Days && typeof data.last7Days === 'object' ? data.last7Days : {};
+        const queryTypes = data.queryTypes && typeof data.queryTypes === 'object' ? data.queryTypes : {};
+        const topQueries = Array.isArray(data.topQueries) ? data.topQueries : [];
+        
+        // Actualizar estadísticas principales
+        document.getElementById('total-interactions').textContent = totalInteractions.toLocaleString();
+        document.getElementById('unique-users').textContent = uniqueUsers.toLocaleString();
+        document.getElementById('unique-sessions').textContent = uniqueSessions.toLocaleString();
+        document.getElementById('satisfaction-rate').textContent = 
+          (satisfactionRate * 100).toFixed(1) + '%';
+        
+        // Tasa de identificación
+        document.getElementById('identification-rate').textContent = 
+          (identificationRate * 100).toFixed(1) + '%';
+        document.getElementById('identification-subtitle').textContent = 
+          `${identifiedInteractions} identificados / ${anonymousInteractions} anónimos`;
+        
+        // Top usuarios identificados
+        if (topIdentifiedUsers.length > 0) {
+          document.getElementById('top-users-container').style.display = 'block';
+          const topUsersData = {};
+          topIdentifiedUsers.forEach(user => {
+            const label = `${user.nombre} ${user.apellido} (${user.email})`;
+            topUsersData[label] = user.interactionCount;
+          });
+          renderBarChart('top-users-chart', topUsersData);
+        } else {
+          document.getElementById('top-users-container').style.display = 'none';
+        }
+        
+        // Gráfico de actividad por día
+        renderBarChart('activity-chart', last7Days);
+        
+        // Gráfico de tipos de consulta
+        renderBarChart('query-types-chart', queryTypes);
+        
+        // Top queries
+        const topQueriesData = {};
+        topQueries.forEach(item => {
+          topQueriesData[item.query.substring(0, 50) + '...'] = item.count;
+        });
+        renderBarChart('top-queries', topQueriesData);
+        
+        // Cargar actividad reciente
+        loadRecentActivity();
+        loadAuthAccess();
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch(err) {
+        console.error('Error:', err);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = '❌ Error al cargar estadísticas: ' + err.message;
+      }
+    }
+    
+    function renderBarChart(containerId, data) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      if (!data || typeof data !== 'object') {
+        container.innerHTML = '<div style="color:#666;font-size:14px;">Sin datos disponibles</div>';
+        return;
+      }
+      
+      const values = Object.values(data).filter(value => Number.isFinite(Number(value)));
+      if (values.length === 0) {
+        container.innerHTML = '<div style="color:#666;font-size:14px;">Sin datos disponibles</div>';
+        return;
+      }
+
+      const maxValue = Math.max(...values, 1);
+      
+      Object.entries(data).forEach(([label, value]) => {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) {
+          return;
+        }
+
+        const percentage = (numericValue / maxValue) * 100;
+        
+        const barItem = document.createElement('div');
+        barItem.className = 'bar-item';
+        
+        barItem.innerHTML = `
+          <div class="bar-label">${label}</div>
+          <div class="bar-bg">
+            <div class="bar-fill" style="width: ${percentage}%">
+              ${numericValue}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(barItem);
+      });
+    }
+    
+    async function loadRecentActivity() {
+      try {
+        const response = await fetch('/api/analytics/activity?limit=20');
+        const data = await response.json();
+        
+        const tbody = document.querySelector('#recent-activity tbody');
+        tbody.innerHTML = '';
+        
+        data.activities.forEach(activity => {
+          const row = document.createElement('tr');
+          
+          const date = new Date(activity.timestamp);
+          const timestamp = date.toLocaleString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          const usuario = activity.usuario?.email || 
+                         activity.usuario?.nombre || 
+                         (activity.usuario?.anonymous ? 'Anónimo' : activity.sessionId.substring(0, 8));
+          
+          const query = activity.query ? 
+                       activity.query.substring(0, 60) + (activity.query.length > 60 ? '...' : '') :
+                       'N/A';
+          
+          const badgeClass = activity.satisfied === true ? 'badge-success' : 
+                           activity.satisfied === false ? 'badge-warning' : 
+                           'badge-info';
+          
+          const satisfactionIcon = activity.satisfied === true ? '😊' : 
+                                  activity.satisfied === false ? '😐' : 
+                                  '-';
+          
+          row.innerHTML = `
+            <td class="timestamp">${timestamp}</td>
+            <td>${usuario}</td>
+            <td>${query}</td>
+            <td><span class="badge badge-info">${activity.queryType}</span></td>
+            <td>${activity.resultCount || 0}</td>
+            <td><span class="badge ${badgeClass}">${satisfactionIcon}</span></td>
+          `;
+          
+          tbody.appendChild(row);
+        });
+        
+      } catch(err) {
+        console.error('Error cargando actividad reciente:', err);
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (!Number.isFinite(seconds) || seconds < 0) return '-';
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = Math.floor(seconds % 60);
+      if (h > 0) return `${h}h ${m}m ${s}s`;
+      if (m > 0) return `${m}m ${s}s`;
+      return `${s}s`;
+    }
+
+    async function loadAuthAccess() {
+      try {
+        const response = await fetch('/api/auth/access-log?limit=50');
+        const data = await response.json();
+        const tbody = document.querySelector('#auth-access-table tbody');
+        tbody.innerHTML = '';
+
+        const logs = (data && data.logs) ? data.logs : [];
+
+        logs.forEach(log => {
+          const row = document.createElement('tr');
+
+          const timestamp = log.timestamp
+            ? new Date(log.timestamp).toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+              })
+            : '-';
+
+          const startAt = log.sessionStartAt
+            ? new Date(log.sessionStartAt).toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : '-';
+
+          const endAt = log.sessionEndAt
+            ? new Date(log.sessionEndAt).toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : '-';
+
+          const eventType = log.eventType || 'auth_event';
+          const eventBadge = eventType === 'session_end' ? 'badge-success' : 'badge-info';
+          const stateBadge = log.success ? 'badge-success' : 'badge-warning';
+
+          row.innerHTML = `
+            <td class="timestamp">${timestamp}</td>
+            <td><span class="badge ${eventBadge}">${eventType}</span></td>
+            <td>${log.username || 'unknown'}</td>
+            <td><span class="badge ${stateBadge}">${log.success ? 'ok' : 'fallo'}</span></td>
+            <td>${startAt}</td>
+            <td>${endAt}</td>
+            <td>${formatDuration(log.durationSeconds)}</td>
+          `;
+
+          tbody.appendChild(row);
+        });
+      } catch(err) {
+        console.error('Error cargando monitoreo de accesos:', err);
+      }
+    }
+    
+    function refreshStats() {
+      loadStats();
+    }
+    
+    async function exportData() {
+      try {
+        window.location.href = '/api/analytics/export';
+      } catch(err) {
+        alert('Error al exportar datos: ' + err.message);
+      }
+    }
+    
+    // Cargar al inicio
+    window.addEventListener('load', loadStats);
+    
+    // Auto-refresh cada 30 segundos
+    setInterval(refreshStats, 30000);
+  </script>
+</body>
+</html>

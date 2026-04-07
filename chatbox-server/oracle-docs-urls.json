@@ -1,0 +1,142 @@
+{
+  "baseUrl": "https://docs.oracle.com/en/industries/energy-water/",
+  "modules": {
+    "mdm": {
+      "name": "Meter Data Management (MDM)",
+      "baseUrl": "meter-data-management/254/mdm-user-guides/",
+      "topics": {
+        "sgg": {
+          "keywords": ["sgg", "smart grid gateway", "gateway", "adaptadores sgg"],
+          "url": "Topics/D1_AG_SGG_Adapters_SmartGridGatewayAdapters.html",
+          "description": "Smart Grid Gateway Adapters"
+        },
+        "sgg_config": {
+          "keywords": ["sgg configuration", "adapter configuration", "configurar sgg", "configuración adaptador"],
+          "url": "Topics/D1_AG_Understanding_SGG_Adapter_Configuration.html",
+          "description": "Understanding SGG Adapter Configuration"
+        },
+        "head_end": {
+          "keywords": ["head end system", "hes", "sistema cabecera", "head end"],
+          "url": "Topics/D1_AG_Configuring_Head_End_Systems.html",
+          "description": "Configuring Head End Systems"
+        },
+        "vee": {
+          "keywords": ["vee rules", "regla vee", "understanding vee", "vee rule"],
+          "url": "Topics/D1_AG_Understanding_VEE_Rules.html",
+          "description": "Understanding VEE Rules"
+        },
+        "vee_about": {
+          "keywords": ["vee", "validation", "estimation", "editing", "about vee", "que es vee"],
+          "url": "Topics/D1_BG_About_VEE.html",
+          "description": "About VEE (Validation, Estimation & Editing)"
+        },
+        "measurement": {
+          "keywords": ["measurement", "medición", "measure data"],
+          "url": "Topics/D1_MeasurementData.html",
+          "description": "Measurement Data"
+        },
+        "measuring_components": {
+          "keywords": ["measuring component", "component type", "tipo de componente", "componente de medición", "measuring component type"],
+          "url": "Topics/D1_AG_Understanding_Measuring_Component_Types.html",
+          "description": "Understanding Measuring Component Types"
+        },
+        "imd": {
+          "keywords": ["imd", "initial measurement", "initial measurement data"],
+          "url": "Topics/D1_IMD_InitialMeasurementData.html",
+          "description": "Initial Measurement Data"
+        },
+        "device": {
+          "keywords": ["device", "meter", "medidor", "dispositivo"],
+          "url": "Topics/D1_Device.html",
+          "description": "Device Configuration"
+        },
+        "usage": {
+          "keywords": ["usage", "consumption", "consumo"],
+          "url": "Topics/D1_Usage.html",
+          "description": "Usage Data"
+        },
+        "niu": {
+          "keywords": ["niu", "network interface unit"],
+          "url": "Topics/D1_NetworkInterfaceUnit.html",
+          "description": "Network Interface Unit"
+        }
+      }
+    },
+    "c2m": {
+      "name": "Customer Care & Billing (C2M)",
+      "baseUrl": "customer-care-billing/",
+      "topics": {
+        "billing": {
+          "keywords": ["billing", "facturación", "factura", "bill"],
+          "url": "index.html",
+          "description": "Billing & Invoicing"
+        },
+        "customer": {
+          "keywords": ["customer", "cliente", "account", "cuenta"],
+          "url": "index.html",
+          "description": "Customer & Account Management"
+        },
+        "servicepoint": {
+          "keywords": ["service point", "punto de suministro", "premise"],
+          "url": "index.html",
+          "description": "Service Point & Premise"
+        },
+        "payment": {
+          "keywords": ["payment", "pago", "collection", "cobro"],
+          "url": "index.html",
+          "description": "Payment & Collections"
+        }
+      }
+    },
+    "field": {
+      "name": "Field Work Management",
+      "baseUrl": "utilities-work-asset/",
+      "topics": {
+        "workorder": {
+          "keywords": ["work order", "orden de trabajo", "wo"],
+          "url": "index.html",
+          "description": "Work Order Management"
+        },
+        "crew": {
+          "keywords": ["crew", "cuadrilla", "dispatch"],
+          "url": "index.html",
+          "description": "Crew Management & Dispatch"
+        }
+      }
+    },
+    "sales": {
+      "name": "Sales & Service",
+      "baseUrl": "utilities-customer-self-service/",
+      "topics": {
+        "selfservice": {
+          "keywords": ["self service", "portal", "customer portal"],
+          "url": "index.html",
+          "description": "Customer Self-Service Portal"
+        }
+      }
+    }
+  },
+  "external_sources": {
+    "autoconsumo_cil_cau": {
+      "keywords": ["cil", "cau", "autoconsumo", "código de identificación", "código de autoconsumo"],
+      "absoluteUrl": "https://www.todoluzygas.es/blog/autoconsumo/codigo-cil-cau",
+      "description": "Información sobre códigos CIL y CAU en autoconsumo eléctrico (España)",
+      "source": "todoluzygas.es"
+    }
+  },
+  "instructions": {
+    "howToAdd": "Para agregar nuevas URLs:",
+    "steps": [
+      "1. Identifica el módulo (mdm, c2m, field, sales)",
+      "2. Copia la URL específica desde docs.oracle.com",
+      "3. Extrae la parte después de /industries/energy-water/",
+      "4. Agrega un nuevo objeto en 'topics' con keywords y url",
+      "5. Reinicia el servidor para aplicar cambios"
+    ],
+    "example": {
+      "keywords": ["tu keyword aquí"],
+      "url": "ruta/relativa/desde/baseUrl.html",
+      "description": "Descripción del tema"
+    }
+  }
+}

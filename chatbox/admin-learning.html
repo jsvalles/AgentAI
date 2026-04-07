@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Aprendizaje - Chatbot Oracle</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #8B0000, #DC143C);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    header h1 { font-size: 32px; margin-bottom: 10px; }
+    header p { opacity: 0.9; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      background: #f8f9fa;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #8B0000;
+      margin-bottom: 5px;
+    }
+    .stat-card .label {
+      color: #666;
+      font-size: 14px;
+    }
+    .controls {
+      padding: 20px 30px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .controls button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #8B0000; color: white; }
+    .btn-primary:hover { background: #DC143C; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-secondary:hover { background: #d0d0d0; }
+    .interactions {
+      padding: 30px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .interaction-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+    }
+    .interaction-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-color: #8B0000;
+    }
+    .interaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+    }
+    .question {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      flex: 1;
+    }
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .badge-faq { background: #fef3c7; color: #92400e; }
+    .badge-data { background: #dbeafe; color: #1e40af; }
+    .badge-problem { background: #fee2e2; color: #991b1b; }
+    .badge-generic { background: #f3f4f6; color: #4b5563; }
+    .response {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #8B0000;
+      margin-bottom: 15px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .metadata {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: #666;
+    }
+    .metadata span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    .loader {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+    .loader::after {
+      content: '⏳';
+      font-size: 48px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧠 Panel de Autoaprendizaje</h1>
+      <p>Sistema de memoria conversacional del chatbot Oracle</p>
+    </header>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="number" id="totalInteractions">0</div>
+        <div class="label">Total Interacciones</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="avgUseCount">0</div>
+        <div class="label">Promedio Reutilización</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="mostUsedCount">0</div>
+        <div class="label">Más Reutilizada</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="todayCount">0</div>
+        <div class="label">Aprendidas Hoy</div>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="btn-primary" onclick="loadLearningData()">🔄 Actualizar</button>
+      <button class="btn-secondary" onclick="sortBy('useCount')">📊 Más Útiles</button>
+      <button class="btn-secondary" onclick="sortBy('timestamp')">🕐 Más Recientes</button>
+      <button class="btn-secondary" onclick="filterByType('all')">🔍 Todas</button>
+      <button class="btn-secondary" onclick="filterByType('faq')">❓ FAQs</button>
+      <button class="btn-secondary" onclick="filterByType('data_analysis')">📊 Datos</button>
+    </div>
+    
+    <div class="interactions" id="interactions">
+      <div class="loader"></div>
+    </div>
+  </div>
+
+  <script>
+    let allInteractions = [];
+    let currentFilter = 'all';
+    let currentSort = 'timestamp';
+
+    // Cargar datos al iniciar
+    loadLearningData();
+    setInterval(loadLearningData, 30000); // Actualizar cada 30 segundos
+
+    async function loadLearningData() {
+      try {
+        const response = await fetch('/api/learning/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: '', limit: 1000 })
+        });
+
+        const data = await response.json();
+        allInteractions = data.results || [];
+        
+        // Ordenar del más reciente al más antiguo por defecto
+        allInteractions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        updateStats();
+        renderInteractions();
+      } catch (err) {
+        console.error('Error loading learning data:', err);
+        document.getElementById('interactions').innerHTML = `
+          <div class="empty-state">
+            <p>❌ Error al cargar datos de aprendizaje</p>
+            <p style="margin-top:10px;"><button class="btn-primary" onclick="loadLearningData()">Reintentar</button></p>
+          </div>
+        `;
+      }
+    }
+
+    function updateStats() {
+      const total = allInteractions.length;
+      const totalUseCount = allInteractions.reduce((sum, i) => sum + (i.useCount || 0), 0);
+      const avg = total > 0 ? (totalUseCount / total).toFixed(1) : 0;
+      const mostUsed = total > 0 ? Math.max(...allInteractions.map(i => i.useCount || 0)) : 0;
+      
+      const today = new Date().toISOString().split('T')[0];
+      const todayCount = allInteractions.filter(i => i.timestamp.startsWith(today)).length;
+
+      document.getElementById('totalInteractions').textContent = total;
+      document.getElementById('avgUseCount').textContent = avg;
+      document.getElementById('mostUsedCount').textContent = mostUsed;
+      document.getElementById('todayCount').textContent = todayCount;
+    }
+
+    function renderInteractions() {
+      const container = document.getElementById('interactions');
+      
+      let filtered = allInteractions;
+      if (currentFilter !== 'all') {
+        filtered = allInteractions.filter(i => i.context?.type === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>No hay interacciones aprendidas todavía</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(interaction => `
+        <div class="interaction-card">
+          <div class="interaction-header">
+            <div class="question">❓ ${escapeHtml(interaction.question)}</div>
+            <span class="badge badge-${getBadgeClass(interaction.context?.type)}">${getTypeLabel(interaction.context?.type)}</span>
+          </div>
+          <div class="response">${escapeHtml(interaction.response.substring(0, 300))}${interaction.response.length > 300 ? '...' : ''}</div>
+          <div class="metadata">
+            <span>🔁 Reutilizada: <strong>${interaction.useCount || 0}</strong> veces</span>
+            <span>🕐 ${formatDate(interaction.timestamp)}</span>
+            ${interaction.context?.sistema ? `<span>💻 ${interaction.context.sistema}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function sortBy(field) {
+      currentSort = field;
+      if (field === 'useCount') {
+        allInteractions.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
+      } else if (field === 'timestamp') {
+        allInteractions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      }
+      renderInteractions();
+    }
+
+    function filterByType(type) {
+      currentFilter = type;
+      renderInteractions();
+    }
+
+    function getBadgeClass(type) {
+      const map = {
+        'faq': 'faq',
+        'data_analysis': 'data',
+        'problem': 'problem'
+      };
+      return map[type] || 'generic';
+    }
+
+    function getTypeLabel(type) {
+      const map = {
+        'faq': 'FAQ',
+        'data_analysis': 'Análisis Datos',
+        'problem': 'Problema',
+        'generic': 'General'
+      };
+      return map[type] || 'General';
+    }
+
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Hace un momento';
+      if (diffMins < 60) return `Hace ${diffMins} min`;
+      if (diffHours < 24) return `Hace ${diffHours}h`;
+      if (diffDays < 7) return `Hace ${diffDays} días`;
+      
+      return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

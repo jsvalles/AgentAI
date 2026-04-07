@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI-Assisted Support Agent</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <!-- Modal de identificación de usuario -->
+  <div id="userIdentificationModal" class="user-modal" style="display:none;">
+    <div class="user-modal-content">
+      <div class="user-modal-header">
+        <h2>� Iniciar Sesión</h2>
+        <p>Ingresa tu email y API Token de Confluence</p>
+        <small style="color: #64748b; display: block; margin-top: 8px; font-size: 12px;">
+          <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color: #667eea; text-decoration: none;">
+            🔗 ¿Cómo obtener mi API Token?
+          </a>
+        </small>
+      </div>
+      <div class="user-modal-body">
+        <div id="auth-error" class="auth-error" style="display:none;"></div>
+        
+        <div class="form-group">
+          <label>� Email de Confluence:</label>
+          <input type="email" id="modal-username" placeholder="tu.email@company.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label>🔑 API Token:</label>
+          <input type="password" id="modal-password" placeholder="Tu API Token de Confluence" autocomplete="off" />
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btn-login" onclick="authenticateWithConfluence()">
+            <span id="login-text">✅ Iniciar Sesión</span>
+            <span id="login-loading" style="display:none;">⏳ Autenticando...</span>
+          </button>
+          <button class="btn-secondary" onclick="continueAnonymous()">🔓 Continuar sin autenticar</button>
+        </div>
+      </div>
+      <div class="user-modal-footer">
+        <small>💡 El API Token es más seguro que la contraseña. Crea uno en tu cuenta de Atlassian.</small>
+      </div>
+    </div>
+  </div>
+  
+  <div class="chat-container">
+    <header class="chat-header">
+      <span>AI-Assisted Support Agent</span>
+      <div style="display:flex;align-items:center;gap:15px;">
+        <!-- TRADUCCIÓN DESACTIVADA TEMPORALMENTE (API key no tiene acceso a modelos de Claude)
+        <button id="translateToggle" style="background:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.3s;">
+          🌐 ES
+        </button>
+        -->
+        <img src="logo.png" alt="Red Clay Logo" class="header-logo">
+      </div>
+    </header>
+    <main id="messages" class="chat-messages" aria-live="polite"></main>
+    <div id="optionsContainer" class="options-container" style="display:none;"></div>
+    <form id="inputForm" class="chat-input" action="javascript:;">
+      <input id="messageInput" type="text" placeholder="¿En qué puedo ayudarte hoy?" autocomplete="off" />
+      <button id="sendBtn" type="submit">Enviar</button>
+    </form>
+  </div>
+  <script src="learning-client.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

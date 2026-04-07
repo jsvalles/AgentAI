@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: chatbox-backend
+    env: node
+    rootDir: chatbox-server
+    buildCommand: npm ci
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 3001
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: JIRA_BASE
+        sync: false
+      - key: JIRA_EMAIL
+        sync: false
+      - key: JIRA_TOKEN
+        sync: false
+      - key: CONFLUENCE_BASE
+        sync: false
+      - key: CONFLUENCE_SPACE
+        sync: false
+      - key: CONFLUENCE_EMAIL
+        sync: false
+      - key: CONFLUENCE_TOKEN
+        sync: false
+      - key: EMAIL_SERVICE
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: AZURE_TENANT_ID
+        sync: false
+      - key: AZURE_CLIENT_ID
+        sync: false
+      - key: AZURE_CLIENT_SECRET
+        sync: false
+      - key: SHAREPOINT_TENANT
+        sync: false
+      - key: SHAREPOINT_SITE_NAME
+        sync: false
