@@ -823,7 +823,23 @@ function normalizeUserRow(row) {
 function loadLocalAuthUsers() {
   ensureAuthStorageDir();
 
-  // Prioridad 1: Excel (permite administración no técnica)
+  // Prioridad 1: Variable de entorno (ideal para Render/produccion)
+  if (process.env.AUTH_USERS_JSON) {
+    try {
+      const parsed = JSON.parse(process.env.AUTH_USERS_JSON);
+      const users = Array.isArray(parsed)
+        ? parsed.map(normalizeUserRow).filter(u => u.username && u.password && u.active)
+        : [];
+
+      if (users.length > 0) {
+        return { source: 'env', users };
+      }
+    } catch (err) {
+      console.error('❌ Error parseando AUTH_USERS_JSON:', err.message);
+    }
+  }
+
+  // Prioridad 2: Excel (permite administración no técnica)
   if (fs.existsSync(AUTH_USERS_XLSX)) {
     try {
       const workbook = xlsx.readFile(AUTH_USERS_XLSX);
@@ -840,7 +856,7 @@ function loadLocalAuthUsers() {
     }
   }
 
-  // Prioridad 2: JSON
+  // Prioridad 3: JSON
   if (fs.existsSync(AUTH_USERS_JSON)) {
     try {
       const raw = fs.readFileSync(AUTH_USERS_JSON, 'utf8');
