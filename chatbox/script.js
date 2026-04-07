@@ -2294,8 +2294,8 @@ async function searchInFAQs(query, sistema){
           }  // Fin de mostrarTodasLasFuentes
           
         } else {
-          appendMessage('bot', '⚠️ La IA no pudo procesar los resultados en este intento. Te muestro la información encontrada para que no pierdas contexto.');
-          mostrarTodasLasFuentes();
+          appendMessage('bot', '⚠️ La IA no pudo procesar los resultados en este intento.');
+          appendMessage('bot', `Encontré información en las fuentes consultadas (C2M PDF: ${c2mResults.length}, Oracle Docs: ${oracleDocsResults.length}, Confluence: ${faqResults.length}, SharePoint: ${sharepointResults.length}, Excel: ${excelResultsArray.length}). Si quieres, te la muestro por secciones.`);
         }
       })  // Fin del .then del Multi-IA
       .catch(error => {
