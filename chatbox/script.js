@@ -1654,41 +1654,84 @@ async function searchInFAQsAndPDF(query, sistema){
       // Identificar si usó PDFs técnicos de VEE
       const usedTechnicalPDF = pdfResponse.sourceType && pdfResponse.sourceType !== 'C2M Business User Guide';
       
-      // Guardar fuentes para referencia futura (solo si el usuario pregunta)
-      window.lastResponseSources = {
-        type: usedTechnicalPDF ? 'PDF_VEE_TECHNICAL' : 'PDF_ORACLE',
-        pages: pdfResponse.sourcePages || [],
-        document: usedTechnicalPDF 
-          ? `Documento técnico de ${pdfResponse.sourceType}` 
-          : 'Oracle C2M Business User Guide v2.8.0.0',
-        sources: pdfResponse.sources || [],
-        hasConfluence: hasConfluenceResults
+      console.log(`📄 Procesando respuesta de PDF (Técnico: ${usedTechnicalPDF})`);
+      console.log(`📄 Tipo de fuente: ${pdfResponse.sourceType || 'C2M Business User Guide'}`);
+      
+      // Preparar searchResults para enviarlo a Multi-IA
+      const searchResults = {
+        c2mGuideResults: pdfResponse.sections || [], // Secciones del PDF
+        confluenceResults: hasConfluenceResults ? confluenceResponse.results.slice(0, 5) : [],
+        pdfSourceType: pdfResponse.sourceType || 'C2M Business User Guide', // Identificar fuente
+        pdfSourcePages: pdfResponse.sourcePages || [],
+        oracleDocsResults: null,
+        sharepointResults: [],
+        excelResults: []
       };
       
-      setTimeout(() => {
-        // Mostrar respuesta del manual oficial de Oracle
-        appendMessage('bot', pdfResponse.response);
-      }, 300);
+      console.log('🤖 Enviando resultados de PDF a Multi-IA para estructurar respuesta...');
       
-      // Mensaje de seguimiento para fomentar interacción
-      setTimeout(() => {
-        if (isAskingForName) {
-          appendMessage('bot', '¿Necesitas información adicional sobre esta regla o algún otro Business Object? 💡');
+      // Llamar a Multi-IA para que estructure la respuesta Y tenga context de les fuentes
+      fetch('/api/ai/multi-ai-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: query,
+          conversationHistory: conversationHistory,
+          searchResults: searchResults,
+          context: usedTechnicalPDF ? 'vee_technical_docs' : 'oracle_documentation'
+        })
+      })
+      .then(r => r.json())
+      .then(aiResponse => {
+        if (aiResponse.success && aiResponse.conversationalResponse) {
+          // Guardar fuentes para referencia futura
+          window.lastResponseSources = {
+            type: usedTechnicalPDF ? 'PDF_VEE_TECHNICAL' : 'PDF_ORACLE',
+            pages: pdfResponse.sourcePages || [],
+            document: usedTechnicalPDF 
+              ? `Documento técnico de ${pdfResponse.sourceType}` 
+              : 'Oracle C2M Business User Guide v2.8.0.0',
+            sources: pdfResponse.sources || [],
+            hasConfluence: hasConfluenceResults
+          };
+          
+          setTimeout(() => {
+            appendMessage('bot', aiResponse.conversationalResponse);
+          }, 300);
+          
+          // Mensaje de seguimiento
+          setTimeout(() => {
+            if (isAskingForName) {
+              appendMessage('bot', '¿Necesitas información adicional sobre esta regla o algún otro Business Object? 💡');
+            } else {
+              appendMessage('bot', '¿Esta información responde tu pregunta o necesitas más detalles técnicos? 💡');
+            }
+          }, 700);
+          
+          // Si también hay Confluence Y es pregunta de error, ofrecerlos
+          if(hasConfluenceResults && isErrorQuery){
+            setTimeout(() => {
+              appendMessage('bot', `📚 Además, tengo documentación complementaria en Confluence (${confluenceResponse.results.length} artículos sobre problemas similares). ¿Quieres que te muestre esta información adicional?`);
+            }, 1100);
+            
+            window.pendingConfluenceResults = confluenceResponse.results;
+            window.pendingConfluenceQuery = query;
+          }
         } else {
-          appendMessage('bot', '¿Esta información responde tu pregunta o necesitas más detalles técnicos? 💡');
+          // Fallback: mostrar respuesta original del PDF
+          console.warn('Multi-IA no pudo procesar, usando respuesta directa del PDF');
+          setTimeout(() => {
+            appendMessage('bot', pdfResponse.response);
+          }, 300);
         }
-      }, 700);
-      
-      // Si también hay resultados de Confluence Y es pregunta de error, ofrecerlos
-      if(hasConfluenceResults && isErrorQuery){
+      })
+      .catch(err => {
+        console.error('Error con Multi-IA, usando respuesta directa del PDF:', err);
         setTimeout(() => {
-          appendMessage('bot', `📚 Además, tengo documentación complementaria en Confluence (${confluenceResponse.results.length} artículos sobre problemas similares). ¿Quieres que te muestre esta información adicional?`);
-        }, 800);
-        
-        // Guardar contexto para respuesta "sí"
-        window.pendingConfluenceResults = confluenceResponse.results;
-        window.pendingConfluenceQuery = query;
-      }
+          appendMessage('bot', pdfResponse.response);
+        }, 300);
+      });
+      
       return;
     }
     
