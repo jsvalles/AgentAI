@@ -495,9 +495,6 @@ function appendMessage(kind, text, useTypewriter = 'auto'){
     return; // Salir temprano porque typewriter maneja el resto
   }
   
-  // Los diagramas se generan como imágenes, no necesitan renderizado client-side
-  }
-  
   // Guardar en historial de conversación para contexto de IA
   conversationHistory.push({
     role: kind === 'user' ? 'user' : 'assistant',
