@@ -1042,6 +1042,31 @@ async function orchestrateMultiAI(question, internalContext = '', imageData = nu
   }
   
   // Si Claude falló
+  if (openai) {
+    console.warn('⚠️ Claude falló, intentando fallback con GPT-4...');
+    const gptFallback = await askGPT4(question, internalContext);
+
+    if (gptFallback.success) {
+      return {
+        questionType,
+        aiResponses: {
+          claude: aiResponses.claude,
+          gpt4: gptFallback
+        },
+        synthesis: {
+          finalResponse: gptFallback.response,
+          method: 'fallback-gpt4',
+          primaryAI: 'GPT-4o'
+        },
+        metadata: {
+          aisUsed: ['gpt4'],
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+  }
+
+  // Si Claude falló (y fallback no disponible)
   return {
     questionType,
     aiResponses,
