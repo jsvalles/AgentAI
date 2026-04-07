@@ -618,17 +618,21 @@ function processMermaidDiagrams(text) {
   if (!text) return text;
   
   // Detectar bloques ```mermaid ... ``` (en texto plano o dentro de <p> tags)
-  const mermaidRegex = /```mermaid\s*\n([\s\S]*?)```/gi;
+  // Usar regex no global primero para reemplazar uno a la vez
+  const mermaidRegex = /```mermaid\s*?\n([\s\S]*?)```/i;
   
   // También detectar cuando viene dentro de <p> tags del backend
-  const htmlMermaidRegex = /<p[^>]*>```mermaid<\/p>\s*([\s\S]*?)\s*<p[^>]*>```<\/p>/gi;
+  const htmlMermaidRegex = /<p[^>]*>```mermaid<\/p>\s*([\s\S]*?)\s*<p[^>]*>```<\/p>/i;
   
   let processedText = text;
-  let match;
   let diagramCount = 0;
+  let maxIterations = 10; // Prevenir loops infinitos
   
   // Procesar bloques en HTML primero
-  while((match = htmlMermaidRegex.exec(text)) !== null) {
+  while(maxIterations-- > 0) {
+    const match = processedText.match(htmlMermaidRegex);
+    if (!match) break;
+    
     diagramCount++;
     // Extraer el código entre las etiquetas <p>
     let diagramCode = match[1]
@@ -639,16 +643,22 @@ function processMermaidDiagrams(text) {
     
     diagramCode = normalizeMermaidCode(diagramCode);
     const diagramHtml = generateMermaidImageHtml(diagramCode);
+    // Reemplazar solo esta ocurrencia específica
     processedText = processedText.replace(match[0], diagramHtml);
   }
   
   // Procesar bloques en markdown plano
-  while((match = mermaidRegex.exec(text)) !== null) {
+  maxIterations = 10;
+  while(maxIterations-- > 0) {
+    const match = processedText.match(mermaidRegex);
+    if (!match) break;
+    
     diagramCount++;
     console.log('🔍 Código Mermaid capturado (raw):', match[1].substring(0, 200) + '...');
     console.log('🔍 Longitud total:', match[1].length);
     const diagramCode = normalizeMermaidCode(match[1]);
     const diagramHtml = generateMermaidImageHtml(diagramCode);
+    // Reemplazar solo esta ocurrencia específica
     processedText = processedText.replace(match[0], diagramHtml);
   }
   
