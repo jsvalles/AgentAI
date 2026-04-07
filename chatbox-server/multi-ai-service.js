@@ -651,9 +651,17 @@ Responde siempre en español natural y conversacional, manteniendo MÁXIMO NIVEL
     
     cleanResponse = htmlParts.join('\n');
     
-    // 5. Restaurar bloques Mermaid originales
+    // 5. Restaurar bloques Mermaid originales  
+    // IMPORTANTE: También remover los <p> que envuelven los placeholders
     for (let i = 0; i < mermaidBlocks.length; i++) {
-      cleanResponse = cleanResponse.replace(`__MERMAID_BLOCK_${i}__`, mermaidBlocks[i]);
+      const placeholder = `__MERMAID_BLOCK_${i}__`;
+      // Remover <p> que envuelven el placeholder
+      cleanResponse = cleanResponse.replace(
+        new RegExp(`<p[^>]*>${placeholder}<\\/p>`, 'g'),
+        mermaidBlocks[i]
+      );
+      // Por si acaso quedó sin <p> (fallback)
+      cleanResponse = cleanResponse.replace(placeholder, mermaidBlocks[i]);
     }
     
     // 6. Restaurar separadores
