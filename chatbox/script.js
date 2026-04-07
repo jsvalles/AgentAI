@@ -678,47 +678,45 @@ function generateMermaidImageHtml(diagramCode) {
     </div>`;
   }
   
-  // Generar imagen usando Mermaid.ink API
+  // Usar Mermaid Live Editor para renderizar (más confiable)
   const escapedCode = escapeHtmlAttribute(diagramCode);
   
-  // Codificar código Mermaid en base64 para la URL (método robusto)
+  // Codificar en base64 URL-safe
   let base64Code;
   try {
-    // Usar TextEncoder para UTF-8 y luego base64
     const utf8Bytes = new TextEncoder().encode(diagramCode);
     const binaryString = Array.from(utf8Bytes, byte => String.fromCharCode(byte)).join('');
     base64Code = btoa(binaryString);
   } catch(e) {
-    console.error('Error codificando Mermaid a base64:', e);
-    // Fallback: intentar con método simple
+    console.error('Error codificando Mermaid:', e);
     try {
       base64Code = btoa(diagramCode);
     } catch(e2) {
-      console.error('Error en fallback base64:', e2);
-      // Si todo falla, usar método antiguo
       base64Code = btoa(unescape(encodeURIComponent(diagramCode)));
     }
   }
   
   console.log('🔐 Base64 generado:', base64Code.substring(0, 50) + '...');
   
-  // URL de la imagen generada por Mermaid.ink
-  const imageUrl = `https://mermaid.ink/img/${base64Code}`;
-  const svgUrl = `https://mermaid.ink/svg/${base64Code}`;
+  // Mermaid Live Editor View (muestra imagen directamente)
+  const liveViewUrl = `https://mermaid.live/view#base64:${base64Code}`;
+  // Mermaid Live Editor Edit (para editar)
+  const liveEditUrl = `https://mermaid.live/edit#base64:${base64Code}`;
   
-  console.log('🌐 URL imagen:', imageUrl.substring(0, 80) + '...');
+  console.log('🌐 URL Mermaid Live:', liveViewUrl.substring(0, 80) + '...');
+  
   
   return `<div class="diagram-card" style="border:1px solid #d7dee8;border-radius:10px;background:#f8fafc;margin:16px 0;overflow:hidden;">
     <div class="diagram-actions" style="display:flex;gap:8px;justify-content:space-between;align-items:center;padding:8px 10px;background:#eef2f7;border-bottom:1px solid #d7dee8;">
-      <span style="font-size:11px;color:#64748b;">📊 Diagrama de flujo</span>
+      <span style="font-size:11px;color:#64748b;">📊 Diagrama de flujo (Mermaid Live)</span>
       <div style="display:flex;gap:8px;">
         <button type="button" class="diagram-copy-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Copiar código</button>
-        <a href="${svgUrl}" target="_blank" style="border:1px solid #059669;background:#059669;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;text-decoration:none;display:inline-block;">Descargar SVG</a>
-        <button type="button" class="diagram-whimsical-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #0f766e;background:#0f766e;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Editar en Whimsical</button>
+        <a href="${liveEditUrl}" target="_blank" style="border:1px solid #8b5cf6;background:#8b5cf6;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;text-decoration:none;display:inline-block;">Editar diagrama</a>
+        <a href="${liveViewUrl}" target="_blank" style="border:1px solid #059669;background:#059669;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;text-decoration:none;display:inline-block;">Ver completo</a>
       </div>
     </div>
-    <div style="display:flex;justify-content:center;background:#fff;padding:20px;overflow-x:auto;">
-      <img src="${imageUrl}" alt="Diagrama Mermaid" style="max-width:100%;height:auto;border-radius:4px;" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22100%22%3E%3Ctext x=%2220%22 y=%2250%22 font-family=%22Arial%22 font-size=%2214%22%3E⚠️ Error cargando diagrama%3C/text%3E%3C/svg%3E';" />
+    <div style="display:flex;justify-content:center;background:#fff;padding:20px;overflow:hidden;">
+      <iframe src="${liveViewUrl}" style="width:100%;min-height:500px;border:none;border-radius:4px;" title="Diagrama Mermaid"></iframe>
     </div>
   </div>`;
 }
