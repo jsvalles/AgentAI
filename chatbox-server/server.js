@@ -3041,11 +3041,19 @@ Tienes acceso a información específica de varias fuentes documentadas:
 - Documentación técnica oficial interna
 - Videos tutoriales embebidos (cuando están disponibles)
 
-**2. C2M Business User Guide (PDF oficial de Oracle)**
+**2. Documentos Técnicos PDF:**
+
+**A) C2M Business User Guide (Guía general de Oracle)**
 - Guía completa de Oracle Utilities C2M en inglés
 - 970 páginas, 931 secciones técnicas
 - Documentación oficial del fabricante
 - Traducida automáticamente al español en tus respuestas
+
+**B) Documentos Técnicos Específicos del Proyecto (E340 MDM)**
+- **E340 MDM_TRA_04**: Realización de validaciones básicas sobre la medida bruta
+- **E340 MDM_TRA_05**: Análisis del conjunto de estimaciones
+- Contienen las reglas VEE específicas del proyecto (CM-EstimAcumGolpeEnergia, CM-EstimEnergiaHistPMPConSaldo, CM-ValidacionPicos, etc.)
+- Documentos técnicos en español con las configuraciones reales del sistema
 
 **3. Histórico de Casos OaaS (Excel)**
 - Casos reales resueltos anteriormente
@@ -3369,14 +3377,32 @@ De lo contrario, NO menciones fuentes. Responde naturalmente.
       
       if (searchResults.c2mGuideResults && searchResults.c2mGuideResults.length > 0) {
         searchContext += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-        searchContext += '📘 **INFORMACIÓN TÉCNICA ADICIONAL:**\n';
-        searchContext += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-        searchContext += '**⚠️ IMPORTANTE:** Este contenido está en inglés. Tradúcelo al español en tu respuesta.\n';
-        searchContext += '**⚠️ NO MENCIONES** de dónde viene esta información a menos que el usuario explícitamente lo pregunte.\n';
-        searchContext += 'Responde directamente con el contenido traducido, sin citar documentos o fuentes.\n\n';
+        
+        // Detectar si es PDF técnico o genérico
+        const pdfSourceType = searchResults.pdfSourceType || 'C2M Business User Guide';
+        const isTechnicalPDF = pdfSourceType !== 'C2M Business User Guide';
+        
+        if (isTechnicalPDF) {
+          searchContext += `📄 **DOCUMENTO TÉCNICO ESPECÍFICO: ${pdfSourceType}**\n`;
+          searchContext += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+          searchContext += `**⚠️ FUENTE EXACTA:** Este contenido proviene del documento técnico "${pdfSourceType}".\n`;
+          searchContext += '**⚠️ IMPORTANTE:** Si el usuario pregunta "¿de dónde sacaste eso?" o "¿cuál es la fuente?", debes citar este documento específico.\n\n';
+        } else {
+          searchContext += '📘 **INFORMACIÓN TÉCNICA ADICIONAL:**\n';
+          searchContext += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+          searchContext += '**⚠️ IMPORTANTE:** Este contenido está en inglés. Tradúcelo al español en tu respuesta.\n';
+          searchContext += '**⚠️ NO MENCIONES** de dónde viene esta información a menos que el usuario explícitamente lo pregunte.\n';
+          searchContext += 'Responde directamente con el contenido traducido, sin citar documentos o fuentes.\n\n';
+        }
+        
         searchResults.c2mGuideResults.forEach((section, i) => {
-          searchContext += `**Sección ${section.pageNum}:**\n`;
-          searchContext += `**Palabras clave encontradas:** ${section.matchedWords.join(', ')}\n`;
+          searchContext += `**Sección ${section.pageNum || i+1}:**\n`;
+          if (section.matchedWords && section.matchedWords.length > 0) {
+            searchContext += `**Palabras clave encontradas:** ${section.matchedWords.join(', ')}\n`;
+          }
+          if (section.source) {
+            searchContext += `**Origen:** ${section.source}\n`;
+          }
           // Enviar contenido más completo (no solo excerpt)
           const fullContent = section.content || section.excerpt;
           searchContext += `**Contenido completo:**\n${fullContent}\n\n`;
@@ -4844,7 +4870,7 @@ REGLAS CRÍTICAS DE FIDELIDAD:
  * Se usa cuando hay preguntas sobre reglas específicas de VEE
  */
 app.post('/api/pdf/search-vee-technical', async (req, res) => {
-  const { query, translate = true, conversationHistory = [] } = req.body;
+  const { query, translate = true, conversationHistory = [], pdfType: requestedPdfType } = req.body;
   
   if (!query || query.trim().length === 0) {
     return res.json({ 
@@ -4856,14 +4882,31 @@ app.post('/api/pdf/search-vee-technical', async (req, res) => {
   
   try {
     console.log(`📄 Buscando en PDFs técnicos de VEE: "${query}"`);
+    if (requestedPdfType) {
+      console.log(`🎯 Tipo de PDF solicitado desde frontend: ${requestedPdfType}`);
+    }
     
     const queryLower = query.toLowerCase();
     
-    // Determinar qué PDF usar basado en la pregunta
+    // Determinar qué PDF usar basado en el parámetro enviado o en la pregunta
     let pdfPath;
     let pdfType;
     
-    if (/validaci[oó]n|validación|validate|validation|validar/i.test(query)) {
+    // Prioridad 1: Usar el tipo solicitado desde el frontend si está presente
+    if (requestedPdfType === 'VALIDACIÓN' || requestedPdfType === 'VALIDACION') {
+      pdfPath = path.join(__dirname, 'data', 'E340 MDM_TRA_04 Realización de validaciones básicas sobre la medida bruta.pdf');
+      pdfType = 'VALIDACIONES';
+      console.log('🔍 Tipo VALIDACIÓN especificado - Usando PDF técnico de validaciones');
+    } else if (requestedPdfType === 'ESTIMACIÓN' || requestedPdfType === 'ESTIMACION') {
+      pdfPath = path.join(__dirname, 'data', 'E340 MDM_TRA_05 Análisis del conjunto de estimaciones.pdf');
+      pdfType = 'ESTIMACIONES';
+      console.log('🔍 Tipo ESTIMACIÓN especificado - Usando PDF técnico de estimaciones');
+    } else if (requestedPdfType === 'AMBOS') {
+      pdfType = 'AMBOS';
+      console.log('🔍 Tipo AMBOS especificado - Buscando en ambos PDFs técnicos');
+    }
+    // Prioridad 2: Auto-detectar desde la query si no se especificó
+    else if (/validaci[oó]n|validación|validate|validation|validar/i.test(query)) {
       pdfPath = path.join(__dirname, 'data', 'E340 MDM_TRA_04 Realización de validaciones básicas sobre la medida bruta.pdf');
       pdfType = 'VALIDACIONES';
       console.log('🔍 Detectada pregunta sobre VALIDACIONES - Usando PDF técnico de validaciones');
