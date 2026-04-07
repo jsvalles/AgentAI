@@ -598,6 +598,17 @@ Responde siempre en español natural y conversacional, manteniendo MÁXIMO NIVEL
     
     // 4. CONVERTIR MARKDOWN A HTML DIRECTAMENTE EN EL BACKEND
     // Esto evita problemas con el parser del frontend
+    
+    // Primero, proteger bloques de código Mermaid para que no se dividan línea por línea
+    const mermaidBlocks = [];
+    let mermaidIndex = 0;
+    cleanResponse = cleanResponse.replace(/```mermaid\s*\n([\s\S]*?)```/gi, (match) => {
+      const placeholder = `__MERMAID_BLOCK_${mermaidIndex}__`;
+      mermaidBlocks.push(match);
+      mermaidIndex++;
+      return placeholder;
+    });
+    
     const lines = cleanResponse.split('\n');
     const htmlParts = [];
     
@@ -627,6 +638,12 @@ Responde siempre en español natural y conversacional, manteniendo MÁXIMO NIVEL
         continue;
       }
       
+      // Placeholder de bloque Mermaid - mantener tal cual
+      if (line.match(/^__MERMAID_BLOCK_\d+__$/)) {
+        htmlParts.push(line);
+        continue;
+      }
+      
       // Línea normal - agregar como párrafo (sin división artificial)
       // Confiamos en que Claude genera párrafos de longitud razonable
       htmlParts.push(`<p style="margin:16px 0;line-height:1.75;color:#374151;">${line}</p>`);
@@ -634,7 +651,12 @@ Responde siempre en español natural y conversacional, manteniendo MÁXIMO NIVEL
     
     cleanResponse = htmlParts.join('\n');
     
-    // 5. Restaurar separadores
+    // 5. Restaurar bloques Mermaid originales
+    for (let i = 0; i < mermaidBlocks.length; i++) {
+      cleanResponse = cleanResponse.replace(`__MERMAID_BLOCK_${i}__`, mermaidBlocks[i]);
+    }
+    
+    // 6. Restaurar separadores
     // (Ya no es necesario porque ya convertimos a HTML)
     
     // DEBUG: Imprimir respuesta procesada para verificar líneas vacías
