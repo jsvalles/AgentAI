@@ -681,18 +681,29 @@ function generateMermaidImageHtml(diagramCode) {
   // Usar Mermaid Live Editor para renderizar (más confiable)
   const escapedCode = escapeHtmlAttribute(diagramCode);
   
-  // Codificar en base64 URL-safe
+  // Crear objeto JSON para Mermaid Live Editor
+  const stateObj = {
+    code: diagramCode,
+    mermaid: JSON.stringify({ theme: 'default' }),
+    autoSync: true,
+    updateDiagram: true
+  };
+  
+  const jsonString = JSON.stringify(stateObj);
+  console.log('📦 JSON generado:', jsonString.substring(0, 100) + '...');
+  
+  // Codificar JSON en base64 URL-safe
   let base64Code;
   try {
-    const utf8Bytes = new TextEncoder().encode(diagramCode);
+    const utf8Bytes = new TextEncoder().encode(jsonString);
     const binaryString = Array.from(utf8Bytes, byte => String.fromCharCode(byte)).join('');
     base64Code = btoa(binaryString);
   } catch(e) {
     console.error('Error codificando Mermaid:', e);
     try {
-      base64Code = btoa(diagramCode);
+      base64Code = btoa(jsonString);
     } catch(e2) {
-      base64Code = btoa(unescape(encodeURIComponent(diagramCode)));
+      base64Code = btoa(unescape(encodeURIComponent(jsonString)));
     }
   }
   
