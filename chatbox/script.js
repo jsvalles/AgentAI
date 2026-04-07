@@ -1348,6 +1348,30 @@ async function showCaseDetails(caseNumbers){
 function detectSpecificVeeRule(query) {
   const queryLower = query.toLowerCase();
   
+  // Palabras clave que indican preguntas sobre LISTA/CATÁLOGO de reglas (usar PDFs técnicos)
+  const ruleListPatterns = [
+    /^(cu[aá]les|cuales) (son|hay)\s+(las\s+)?(principales\s+|main\s+)?(reglas|rules)/i,
+    /^(lista|listado|catalogo|catálogo)\s+(de\s+)?(reglas|rules)/i,
+    /^(dame|muestra|muestrame|muéstrame)\s+(las\s+)?(reglas|rules)/i,
+    /^(qu[eé]|que)\s+(reglas|rules)\s+(hay|existen|tiene|se\s+usan)/i,
+    /principales.*reglas.*vee/i,
+    /reglas.*vee.*(naturgy|proyecto|implementadas|configuradas)/i
+  ];
+  
+  // Si pide lista de reglas, SÍ usar PDFs técnicos
+  if (ruleListPatterns.some(pattern => pattern.test(query))) {
+    console.log('📋 Pregunta sobre LISTA DE REGLAS detectada - Usar PDFs técnicos');
+    // Detectar si pide validación o estimación
+    if (/validaci[oó]n/i.test(queryLower)) {
+      return 'VALIDACIÓN';
+    } else if (/estimaci[oó]n/i.test(queryLower)) {
+      return 'ESTIMACIÓN';
+    } else {
+      // Si no especifica, buscar en ambos
+      return 'AMBOS';
+    }
+  }
+  
   // Palabras clave que indican preguntas GENERALES (no deben usar PDFs técnicos)
   const generalPatterns = [
     /^(qu[eé]|que) es (una |la )?(regla|validaci[oó]n|estimaci[oó]n)/i,
