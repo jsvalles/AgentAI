@@ -645,6 +645,8 @@ function processMermaidDiagrams(text) {
   // Procesar bloques en markdown plano
   while((match = mermaidRegex.exec(text)) !== null) {
     diagramCount++;
+    console.log('🔍 Código Mermaid capturado (raw):', match[1].substring(0, 200) + '...');
+    console.log('🔍 Longitud total:', match[1].length);
     const diagramCode = normalizeMermaidCode(match[1]);
     const diagramHtml = generateMermaidImageHtml(diagramCode);
     processedText = processedText.replace(match[0], diagramHtml);
@@ -669,18 +671,32 @@ function generateMermaidImageHtml(diagramCode) {
   // Generar imagen usando Mermaid.ink API
   const escapedCode = escapeHtmlAttribute(diagramCode);
   
-  // Codificar código Mermaid en base64 para la URL
+  // Codificar código Mermaid en base64 para la URL (método robusto)
   let base64Code;
   try {
-    base64Code = btoa(unescape(encodeURIComponent(diagramCode)));
+    // Usar TextEncoder para UTF-8 y luego base64
+    const utf8Bytes = new TextEncoder().encode(diagramCode);
+    const binaryString = Array.from(utf8Bytes, byte => String.fromCharCode(byte)).join('');
+    base64Code = btoa(binaryString);
   } catch(e) {
     console.error('Error codificando Mermaid a base64:', e);
-    base64Code = btoa(diagramCode);
+    // Fallback: intentar con método simple
+    try {
+      base64Code = btoa(diagramCode);
+    } catch(e2) {
+      console.error('Error en fallback base64:', e2);
+      // Si todo falla, usar método antiguo
+      base64Code = btoa(unescape(encodeURIComponent(diagramCode)));
+    }
   }
+  
+  console.log('🔐 Base64 generado:', base64Code.substring(0, 50) + '...');
   
   // URL de la imagen generada por Mermaid.ink
   const imageUrl = `https://mermaid.ink/img/${base64Code}`;
   const svgUrl = `https://mermaid.ink/svg/${base64Code}`;
+  
+  console.log('🌐 URL imagen:', imageUrl.substring(0, 80) + '...');
   
   return `<div class="diagram-card" style="border:1px solid #d7dee8;border-radius:10px;background:#f8fafc;margin:16px 0;overflow:hidden;">
     <div class="diagram-actions" style="display:flex;gap:8px;justify-content:space-between;align-items:center;padding:8px 10px;background:#eef2f7;border-bottom:1px solid #d7dee8;">
