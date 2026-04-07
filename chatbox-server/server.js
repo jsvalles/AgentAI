@@ -4415,7 +4415,7 @@ Si NINGUNA sección es relevante, responde: {"relevant_sections": [], "reasoning
       
     } else if (ANTHROPIC_API_KEY) {
       const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 500,
         temperature: 0.1,
         messages: [{ role: 'user', content: semanticPrompt }]
@@ -4458,10 +4458,20 @@ Si NINGUNA sección es relevante, responde: {"relevant_sections": [], "reasoning
  * Búsqueda simple por keywords (fallback y etapa inicial)
  */
 function simpleKeywordSearch(query, sections, maxResults = 3) {
+  // Detectar si es pregunta sobre LISTA DE REGLAS (query general, no específica)
+  const isRuleListQuery = /^(cu[aá]les|cuales|qu[eé]|que)\s+(son|hay|reglas|principales)/i.test(query) ||
+                         /lista.*reglas|reglas.*vee|principales.*reglas/i.test(query);
+  
   // Filtrar stopwords comunes en español e inglés
-  const stopwords = ['muestrame', 'dame', 'dime', 'explica', 'como', 'que', 'cual', 'ejemplo', 'show', 'give', 'tell', 'example', 'llama', 'nombre'];
+  const stopwords = ['muestrame', 'dame', 'dime', 'explica', 'como', 'que', 'cual', 'ejemplo', 'show', 'give', 'tell', 'example', 'llama', 'nombre', 'proyecto', 'naturgy'];
   const words = query.toLowerCase().split(/\s+/);
-  const keywords = words.filter(w => w.length > 3 && !stopwords.includes(w));
+  let keywords = words.filter(w => w.length > 3 && !stopwords.includes(w));
+  
+  // Si es pregunta sobre lista de reglas, usar keywords genéricas más amplias
+  if (isRuleListQuery) {
+    console.log('🎯 Pregunta sobre LISTA DE REGLAS detectada - Usando búsqueda amplia');
+    keywords = ['regla', 'validación', 'validacion', 'estimación', 'estimacion', 'vee', 'cm-'];
+  }
   
   console.log('🔍 Búsqueda simple con keywords:', keywords.join(', '));
   
@@ -4484,7 +4494,10 @@ function simpleKeywordSearch(query, sections, maxResults = 3) {
   }
   
   relevantSections.sort((a, b) => b.relevance - a.relevance);
-  const topResults = relevantSections.slice(0, maxResults);
+  
+  // Si es lista de reglas, devolver más resultados (hasta 20)
+  const resultLimit = isRuleListQuery ? 20 : maxResults;
+  const topResults = relevantSections.slice(0, resultLimit);
   
   console.log(`✅ Búsqueda simple encontró ${topResults.length} secciones (de ${relevantSections.length} candidatas)`);
   
@@ -4790,7 +4803,7 @@ REGLAS CRÍTICAS DE FIDELIDAD:
 - Si se pide "flujo", "diagrama", "flowchart", "dibuja", genera un diagrama Mermaid con \`\`\`mermaid ... \`\`\``;
       
       const claudeResponse = await axios.post('https://api.anthropic.com/v1/messages', {
-        model: 'claude-3-5-sonnet-20241022',  // Modelo actualizado a la versión más reciente
+        model: 'claude-sonnet-4-5-20250929',  // Modelo Claude Sonnet 4.5 válido abril 2026
         max_tokens: 2000,
         temperature: 0.1,  // Más bajo para mayor precisión
         system: systemPrompt,
