@@ -453,6 +453,7 @@ function appendMessage(kind, text, useTypewriter = 'auto'){
   if (!shouldUseTypewriter || kind === 'user') {
     el.innerHTML = text;
     messagesEl.appendChild(el);
+    wireDiagramActionButtons(el);
   } else {
     // Usar efecto typewriter para respuestas del bot
     messagesEl.appendChild(el);
@@ -486,6 +487,8 @@ function appendMessage(kind, text, useTypewriter = 'auto'){
       }, delay);
       delay += revealSpeed;
     });
+
+    wireDiagramActionButtons(el);
     
     // Después de mostrar todo, renderizar Mermaid si existe
     setTimeout(() => {
@@ -671,13 +674,94 @@ function processMermaidDiagrams(text) {
       </div>`;
     } else {
       // Diagrama válido, renderizar
-      diagramHtml = `<div class="mermaid" style="display:flex;justify-content:center;background:#f5f5f5;border-radius:8px;padding:16px;margin:12px 0;overflow-x:auto;border:1px solid #ddd;">${diagramCode}</div>`;
+      const escapedCode = escapeHtmlAttribute(diagramCode);
+      diagramHtml = `<div class="diagram-card" style="border:1px solid #d7dee8;border-radius:10px;background:#f8fafc;margin:12px 0;overflow:hidden;">
+        <div class="diagram-actions" style="display:flex;gap:8px;justify-content:flex-end;padding:8px 10px;background:#eef2f7;border-bottom:1px solid #d7dee8;">
+          <button type="button" class="diagram-copy-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Copiar Mermaid</button>
+          <button type="button" class="diagram-whimsical-btn" data-mermaid-source="${escapedCode}" style="border:1px solid #0f766e;background:#0f766e;color:#fff;border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;">Abrir en Whimsical</button>
+        </div>
+        <div class="mermaid" data-mermaid-source="${escapedCode}" style="display:flex;justify-content:center;background:#f5f5f5;border-radius:0;padding:16px;overflow-x:auto;">${diagramCode}</div>
+      </div>`;
     }
     
     processedText = processedText.replace(match[0], diagramHtml);
   }
   
   return processedText;
+}
+
+function escapeHtmlAttribute(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function decodeHtmlAttribute(value) {
+  return String(value || '')
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const temp = document.createElement('textarea');
+  temp.value = text;
+  temp.style.position = 'fixed';
+  temp.style.opacity = '0';
+  document.body.appendChild(temp);
+  temp.focus();
+  temp.select();
+  document.execCommand('copy');
+  temp.remove();
+}
+
+function wireDiagramActionButtons(scopeEl) {
+  if (!scopeEl) return;
+
+  const copyButtons = scopeEl.querySelectorAll('.diagram-copy-btn');
+  copyButtons.forEach((btn) => {
+    if (btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const code = decodeHtmlAttribute(btn.getAttribute('data-mermaid-source') || '');
+      try {
+        await copyTextToClipboard(code);
+        btn.textContent = 'Copiado';
+        setTimeout(() => {
+          btn.textContent = 'Copiar Mermaid';
+        }, 1200);
+      } catch (err) {
+        console.error('No se pudo copiar Mermaid:', err);
+      }
+    });
+  });
+
+  const whimsicalButtons = scopeEl.querySelectorAll('.diagram-whimsical-btn');
+  whimsicalButtons.forEach((btn) => {
+    if (btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const code = decodeHtmlAttribute(btn.getAttribute('data-mermaid-source') || '');
+      try {
+        await copyTextToClipboard(code);
+      } catch (err) {
+        console.warn('No se pudo copiar automáticamente el diagrama antes de abrir Whimsical:', err);
+      }
+      window.open('https://whimsical.com/ai/ai-text-to-flowchart', '_blank', 'noopener');
+    });
+  });
 }
 
 function normalizeMermaidCode(rawCode) {
@@ -1660,7 +1744,7 @@ async function searchInFAQs(query, sistema){
   // 🎯 CLASIFICAR TIPO DE PREGUNTA para decidir si buscar en Oracle Docs
   let questionType = null;
   try {
-    const classifyResponse = await fetch('/api/ai/classify-question', {
+    const classifyResponse = await fetch('/api/ai/classify-question-type', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: query })
@@ -1804,9 +1888,12 @@ async function searchInFAQs(query, sistema){
         // Eliminar loading indicator
         removeLoadingIndicator(analysisLoadingId);
         
-        if(aiData.success && aiData.conversationalResponse){
+        const conversationalText = (aiData.conversationalResponse || '').trim();
+        const looksLikeError = conversationalText.startsWith('❌') || conversationalText.toLowerCase().includes('error al procesar tu pregunta');
+
+        if(aiData.success && conversationalText && !looksLikeError){
           // Mostrar respuesta conversacional sin badges técnicos
-          appendMessage('bot', aiData.conversationalResponse);
+          appendMessage('bot', conversationalText);
           messagesEl.scrollTop = messagesEl.scrollHeight;
           
           // Mensaje conversacional de seguimiento sin botones
@@ -2207,7 +2294,8 @@ async function searchInFAQs(query, sistema){
           }  // Fin de mostrarTodasLasFuentes
           
         } else {
-          appendMessage('bot', '⚠️ La IA no pudo procesar los resultados.');
+          appendMessage('bot', '⚠️ La IA no pudo procesar los resultados en este intento. Te muestro la información encontrada para que no pierdas contexto.');
+          mostrarTodasLasFuentes();
         }
       })  // Fin del .then del Multi-IA
       .catch(error => {

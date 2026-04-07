@@ -5032,6 +5032,9 @@ app.post('/api/ai/multi-ai-response', async (req, res) => {
   try {
     // Llamar al orquestador multi-IA (con imagen e historial si están disponibles)
     const result = await multiAI.askMultiAI(query, searchResults, image, conversationHistory);
+    const finalResponse = (result?.synthesis?.finalResponse || '').trim();
+    const synthesisMethod = result?.synthesis?.method || 'unknown';
+    const hasSynthesisError = synthesisMethod === 'error' || finalResponse.startsWith('❌');
     
     console.log('\n✅ Sistema Multi-IA completado');
     console.log('📊 IAs usadas:', result.metadata.aisUsed.join(', ').toUpperCase());
@@ -5041,16 +5044,17 @@ app.post('/api/ai/multi-ai-response', async (req, res) => {
     }
     
     res.json({
-      success: true,
-      conversationalResponse: result.synthesis.finalResponse,
+      success: !hasSynthesisError,
+      conversationalResponse: finalResponse,
       multiAI: {
         questionType: result.questionType,
         aisUsed: result.metadata.aisUsed,
-        synthesisMethod: result.synthesis.method,
+        synthesisMethod: synthesisMethod,
         primaryAI: result.synthesis.primaryAI || 'claude',
         sourcesUsed: result.synthesis.sourcesUsed || [],
         hadVision: !!image
       },
+      error: hasSynthesisError ? (result?.synthesis?.error || 'No se pudo generar respuesta con IA') : null,
       hasDetails: searchResults && (
         (searchResults.confluenceResults && searchResults.confluenceResults.length > 0) ||
         (searchResults.excelResults && searchResults.excelResults.length > 0) ||
